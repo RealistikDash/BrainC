@@ -46,7 +46,7 @@ void allocate_memory() {
 }
 
 // Instruction Data
-#define CALL_STACK 128
+#define CALL_STACK 1024
 #define INSTRUCTION_IDX uint64_t
 uint8_t* instructions;
 INSTRUCTION_IDX* call_stack;

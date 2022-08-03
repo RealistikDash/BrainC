@@ -1,2 +1,2 @@
 # TODO: Use makefile
-gcc brain.c
+gcc brain.c -O3
