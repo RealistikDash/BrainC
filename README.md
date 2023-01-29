@@ -1,16 +1,19 @@
-# Simple BrainF Interpreter
+# BrainC
+The simple, unsafe BrainF interpreter.
 
-## How to compile?
-Compiling is simple and only required GCC. Just run
+## Usage
+Usage of BrainC is simple.
+
+### Compilation
+Compiling is done through the makefile using GCC.
+
+```sh
+make build
 ```
-./compile.sh
-```
 
-This will be later changed into a makefile.
+### Running
+BrainC takes in a single command line argument. This is the path of the code to run.
 
-## How do I use it?
-
-Once you successfully compile it, its just a matter of passing the directory of the file you wish to execute as a CLI arg.
-```
-./brainc testing/helloworld.bf
+```sh
+./brain <file>
 ```
