@@ -48,7 +48,8 @@ void allocate_memory() {
 // Instruction Data
 #define CALL_STACK 1024
 #define INSTRUCTION_IDX uint64_t
-uint8_t* instructions;
+uint8_t* instructions_ptr;
+uint8_t* instructions_base;
 INSTRUCTION_IDX* call_stack;
 
 void allocate_call_stack() {
@@ -57,7 +58,7 @@ void allocate_call_stack() {
 
 void mark_new_call() {
     call_stack += sizeof(INSTRUCTION_IDX);
-    *call_stack = instructions;
+    *call_stack = instructions_ptr;
 }
 
 void finish_call() {
@@ -65,7 +66,7 @@ void finish_call() {
 }
 
 void jump_to_call_start() {
-    instructions = *call_stack;
+    instructions_ptr = *call_stack;
 }
 
 /// Returns 1 of error.
@@ -79,8 +80,9 @@ uint8_t load_from_file(char* filename) {
     fseek(file, 0, SEEK_SET);
 
     // This allocation is an overestimate.
-    instructions = malloc(size); // Do not overwrite the start.
-    uint8_t* instructions_cpy = instructions;
+    instructions_base = malloc(size); // Do not overwrite the start.
+    instructions_ptr = instructions_base;
+    uint8_t* instructions_cpy = instructions_base;
     // This will probably be slow.
     char token;
     for (INSTRUCTION_IDX i = 0; i < size; i++) {
@@ -93,6 +95,20 @@ uint8_t load_from_file(char* filename) {
     }
     *instructions_cpy = END;
     return 0;
+}
+
+void load_input(char* source, INSTRUCTION_IDX size) {
+    instructions_base = malloc(size);
+    instructions_ptr = instructions_base;
+    uint8_t* instructions_cpy = instructions_base;
+    for (INSTRUCTION_IDX i = 0; i < size; i++) {
+        uint8_t tok = into_token(source + i);
+        if (tok != END) {
+            *instructions_cpy = tok;
+            instructions_cpy++;
+        }
+    }
+    *instructions_cpy = END;
 }
 
 // Logic
@@ -117,8 +133,8 @@ void input() {
 
 // Execution
 void execute() {
-    while (*instructions != END) {
-        switch (*instructions) {
+    while (*instructions_ptr != END) {
+        switch (*instructions_ptr) {
         case PTR_L:
             ptr_l();
             break;
@@ -144,10 +160,10 @@ void execute() {
                 // Find the next matching ]
                 uint16_t depth = 1;
                 do {
-                    instructions++;
-                    if (*instructions == JMP_IZ)
+                    instructions_ptr++;
+                    if (*instructions_ptr == JMP_IZ)
                         depth++;
-                    else if (*instructions == JMP_NZ)
+                    else if (*instructions_ptr == JMP_NZ)
                         depth--;
                 } while (depth);
             }
@@ -160,13 +176,25 @@ void execute() {
             break;
         }
 
-        instructions++;
+        instructions_ptr++;
     }
+
+    free(instructions_base);
 }
 
 void configure() {
     allocate_call_stack();
     allocate_memory();
+}
+
+void repl_loop() {
+    char* input = malloc(1024);
+    while (1) {
+        printf(">>> ");
+        scanf("%s", input);
+        load_input(input, 1024);
+        execute();
+    }
 }
 
 // Entry Point
@@ -184,7 +212,9 @@ int32_t main(int32_t argc, char* argv[]) {
         return 0;
     }
     else {
-        printf("No file supplied! Doing nothing.\n");
-        return 1;
+        printf("Starting REPL...\n");
+        configure();
+        repl_loop();
+        return 0;
     }
 }

@@ -12,8 +12,14 @@ make build
 ```
 
 ### Running
-BrainC takes in a single command line argument. This is the path of the code to run.
+BrainC features two main modes. The first is a file evaluation mode which runs a file completely and exists.
 
 ```sh
 ./brain <file>
+```
+
+Or a persistent state REPL.
+
+```sh
+./brain
 ```
