@@ -201,7 +201,7 @@ void repl_loop() {
 }
 
 // Entry Point
-int32_t main(int32_t argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     printf("BrainC 1.0.0 - The BrainF interpreter\n");
     if (argc > 1) {
         char* filename = argv[1];
