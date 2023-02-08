@@ -194,7 +194,7 @@ void repl_loop() {
     char* input = malloc(1024);
     while (1) {
         printf(">>> ");
-        scanf("%s", input);
+        scanf("%1024s", input);
         load_input(input, 1024);
         execute();
     }
