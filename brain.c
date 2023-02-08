@@ -2,15 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PTR_L 0
-#define PTR_R 1
-#define INCR 2
-#define DECR 3
-#define OUTPUT 4
-#define INPUT 5
-#define JMP_IZ 6
-#define JMP_NZ 7
-#define END 8
+enum {
+    PTR_L,
+    PTR_R,
+    INCR,
+    DECR,
+    OUTPUT,
+    INPUT,
+    JMP_IZ,
+    JMP_NZ,
+    END
+};
 
 uint8_t into_token(char* character) {
     switch (*character) {
