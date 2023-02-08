@@ -8,7 +8,7 @@ Usage of BrainC is simple.
 Compiling is done through the makefile using GCC.
 
 ```sh
-make build
+make
 ```
 
 ### Running
