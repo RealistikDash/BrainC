@@ -2,15 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PTR_L 0
-#define PTR_R 1
-#define INCR 2
-#define DECR 3
-#define OUTPUT 4
-#define INPUT 5
-#define JMP_IZ 6
-#define JMP_NZ 7
-#define END 8
+enum {
+    PTR_L,
+    PTR_R,
+    INCR,
+    DECR,
+    OUTPUT,
+    INPUT,
+    JMP_IZ,
+    JMP_NZ,
+    END
+};
 
 uint8_t into_token(char* character) {
     switch (*character) {
@@ -47,26 +49,27 @@ void allocate_memory() {
 
 // Instruction Data
 #define CALL_STACK 1024
-#define INSTRUCTION_IDX uint64_t
+typedef uintptr_t instruction_idx_t;
+
 uint8_t* instructions_ptr;
 uint8_t* instructions_base;
-INSTRUCTION_IDX* call_stack;
+instruction_idx_t* call_stack;
 
 void allocate_call_stack() {
-    call_stack = malloc(CALL_STACK * sizeof(INSTRUCTION_IDX));
+    call_stack = malloc(CALL_STACK * sizeof(instruction_idx_t));
 }
 
 void mark_new_call() {
-    call_stack += sizeof(INSTRUCTION_IDX);
-    *call_stack = instructions_ptr;
+    call_stack += sizeof(instruction_idx_t);
+    *call_stack = (instruction_idx_t)instructions_ptr;
 }
 
 void finish_call() {
-    call_stack -= sizeof(INSTRUCTION_IDX);
+    call_stack -= sizeof(instruction_idx_t);
 }
 
 void jump_to_call_start() {
-    instructions_ptr = *call_stack;
+    instructions_ptr = (uint8_t*)*call_stack;
 }
 
 /// Returns 1 of error.
@@ -76,7 +79,7 @@ uint8_t load_from_file(char* filename) {
         return 1;
     }
     fseek(file, 0, SEEK_END);
-    INSTRUCTION_IDX size = ftell(file);
+    instruction_idx_t size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
     // This allocation is an overestimate.
@@ -85,7 +88,7 @@ uint8_t load_from_file(char* filename) {
     uint8_t* instructions_cpy = instructions_base;
     // This will probably be slow.
     char token;
-    for (INSTRUCTION_IDX i = 0; i < size; i++) {
+    for (instruction_idx_t i = 0; i < size; i++) {
         fread(&token, 1, 1, file);
         uint8_t tok = into_token(&token);
         if (tok != END) {
@@ -97,11 +100,11 @@ uint8_t load_from_file(char* filename) {
     return 0;
 }
 
-void load_input(char* source, INSTRUCTION_IDX size) {
+void load_input(char* source, instruction_idx_t size) {
     instructions_base = malloc(size);
     instructions_ptr = instructions_base;
     uint8_t* instructions_cpy = instructions_base;
-    for (INSTRUCTION_IDX i = 0; i < size; i++) {
+    for (instruction_idx_t i = 0; i < size; i++) {
         uint8_t tok = into_token(source + i);
         if (tok != END) {
             *instructions_cpy = tok;
@@ -153,7 +156,7 @@ void execute() {
         case INPUT:
             input();
             break;
-        
+
         // Fancy control flow stuff
         case JMP_IZ:
             if (*mem_ptr == 0) {
@@ -191,14 +194,14 @@ void repl_loop() {
     char* input = malloc(1024);
     while (1) {
         printf(">>> ");
-        scanf("%s", input);
+        scanf("%1024s", input);
         load_input(input, 1024);
         execute();
     }
 }
 
 // Entry Point
-int32_t main(int32_t argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     printf("BrainC 1.0.0 - The BrainF interpreter\n");
     if (argc > 1) {
         char* filename = argv[1];

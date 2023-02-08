@@ -1,4 +1,3 @@
-#!/usr/bin/make
-build:
-	gcc brain.c -o brain -O3
-
+#!/usr/bin/env -S make -f
+brain: brain.c
+	gcc $^ -o $@ -O3
