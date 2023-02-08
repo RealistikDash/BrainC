@@ -156,7 +156,7 @@ void execute() {
         case INPUT:
             input();
             break;
-        
+
         // Fancy control flow stuff
         case JMP_IZ:
             if (*mem_ptr == 0) {
