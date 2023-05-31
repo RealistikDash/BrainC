@@ -69,7 +69,7 @@ void finish_call() {
 }
 
 void jump_to_call_start() {
-    instructions_ptr = (uint8_t*)call_stack;
+    instructions_ptr = (uint8_t*)*call_stack;
 }
 
 /// Returns 1 of error.
